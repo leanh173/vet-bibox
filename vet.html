@@ -73,19 +73,34 @@
         console.log("-----------------------");
 
         checkerEthCoinPoint = (1/coin_eth_ask_price) * coin_btc_bid_price / eth_btc.ask;
+        checkerEthCoinPointWait = (1/(coin_eth_ask_price + coin_eth_bid_price))*2 * coin_btc_bid_price / eth_btc.ask;
         if (checkerEthCoinPoint > 1 ){
           write_line("LI", "GO ETH => " + coin_name + " point: " + checkerEthCoinPoint);
-          write_line("p", "Buy in ETH: " + coin_eth_ask_price);
-          write_line("p", "Sell in btc: " + coin_btc_bid_price);
-          write_line("p", "Buy eth from btc: " + eth_btc.ask);
+          write_line("p", "Buy in ETH : < " + coin_eth_ask_price);
+          write_line("p", "Sell in btc: > " + coin_btc_bid_price);
+          write_line("p", "Buy eth from btc: < " + eth_btc.ask);
+        }else if (checkerEthCoinPointWait > 1 ){
+          write_line("LI", "[Wait bid]")
+          write_line("LI", "GO ETH => " + coin_name + " point: " + checkerEthCoinPoint + " -> " + checkerEthCoinPointWait);
+          write_line("p", "Buy in ETH : < " + (coin_eth_ask_price + coin_eth_bid_price)/2);
+          write_line("p", "Sell in btc: > " + coin_btc_bid_price);
+          write_line("p", "Buy eth from btc: < " + eth_btc.ask);
         }
+
+        checkerBitCoinPointWait = (1/(coin_btc_ask_price + coin_btc_bid_price))*2 * coin_eth_bid_price * eth_btc.bid;
 
         checkerBitCoinPoint = (1/coin_btc_ask_price) * coin_eth_bid_price * eth_btc.bid;
         if (checkerBitCoinPoint > 1 ){
-          node = document.createElement("LI");
-          textnode = document.createTextNode("GO BTC => " + coin_name + " point: " + checkerBitCoinPoint);
-          node.appendChild(textnode);
-          buy_list.appendChild(node);
+          write_line("LI", "GO BTC => " + coin_name + " point: " + checkerBitCoinPoint);
+          write_line("p", "Buy in BTC : < " + coin_btc_ask_price);
+          write_line("p", "Sell in eth: > " + coin_eth_bid_price);
+          write_line("p", "Buy btc from eth: < " + eth_btc.bid);
+        }else if (checkerBitCoinPointWait > 1 ){
+          write_line("LI", "[Wait bid]")
+          write_line("LI", "GO BTC => " + coin_name + " point: " + checkerBitCoinPoint + " -> " + checkerBitCoinPointWait);
+          write_line("p", "Buy in BTC : < " + ((coin_btc_ask_price + coin_btc_bid_price)/2));
+          write_line("p", "Sell in eth: > " + coin_eth_bid_price);
+          write_line("p", "Buy btc from eth: < " + eth_btc.bid);
         }
 
         return fech_coins(coin_list, eth_btc);
