@@ -8,6 +8,7 @@
 </head>
 <body>
   <h1>ETH - ALTCOIN - BTC - ETH</h1>
+  <button onclick="fetch_good_coin()">Reload good coin</button>
   <ul id="Vet-bibox"></ul>
 </body>
 </html>
@@ -27,7 +28,13 @@
   }
 
   function fech_coins(coin_list, eth_btc){
-    if(coin_list.length == 0){return};
+    if(coin_list.length == 0){
+      node = document.createElement("LI");
+      textnode = document.createTextNode("*** DONE ***");
+      node.appendChild(textnode);
+      buy_list.appendChild(node);
+      return
+    };
     coin_name = coin_list.pop();
     url_coin_eth_tmp = url_coin_eth.replace("ALTCOIN_NAME", coin_name);
     url_coin_btc_tmp = url_coin_btc.replace("ALTCOIN_NAME", coin_name);
@@ -97,6 +104,7 @@
 
   function fetch_good_coin(){
     // fetch eth_btc price
+    buy_list.textContent = "";
     btc_eth_ask_price = 0;
     btc_eth_bid_price = 0;
 
