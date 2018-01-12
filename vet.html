@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+  <title>JS Bin</title>
+</head>
+<body>
+  <h1>ETH - ALTCOIN - BTC - ETH</h1>
+  <ul id="Vet-bibox"></ul>
+</body>
+</html>
+
+<script type="text/javascript">
+  let listCoin = []
+
+  const buy_list = document.getElementById('Vet-bibox');
+
+  const url_coin_list = 'https://api.bibox.com/v1/mdata?cmd=marketAll';
+  const url_coin_eth = 'https://api.bibox.com/v1/mdata?cmd=depth&pair=ALTCOIN_NAME_ETH&size=10';
+  const url_coin_btc = 'https://api.bibox.com/v1/mdata?cmd=depth&pair=ALTCOIN_NAME_BTC&size=10';
+  const url_btc_eth = 'https://api.bibox.com/v1/mdata?cmd=depth&pair=ETH_BTC&size=10';
+
+  function fetch_btc_coin_price(coin_list, eth_btc, coin_eth_price){
+
+  }
+
+  function fech_coins(coin_list, eth_btc){
+    if(coin_list.length == 0){return};
+    coin_name = coin_list.pop();
+    url_coin_eth_tmp = url_coin_eth.replace("ALTCOIN_NAME", coin_name);
+    url_coin_btc_tmp = url_coin_btc.replace("ALTCOIN_NAME", coin_name);
+
+    //load price eth coin
+    fetch(url_coin_eth_tmp)
+    .then((resp) => resp.json())
+    .then(function(data) {
+      data_coin_eth_asks = data.result.asks.map(a => parseFloat(a.price));
+      coin_eth_ask_price = Math.min(...data_coin_eth_asks);
+      console.log("eth - " + coin_name + " ASK: " + coin_eth_ask_price.toString());
+      coin_eth_ask_price = parseFloat(coin_eth_ask_price);
+
+      data_coin_eth_bids = data.result.bids.map(a => parseFloat(a.price));
+      coin_eth_bid_price = Math.max(...data_coin_eth_bids);
+      console.log("eth - " + coin_name + " BID: " + coin_eth_bid_price.toString());
+      coin_eth_bid_price = parseFloat(coin_eth_bid_price);
+
+      return fetch(url_coin_btc_tmp)
+      .then((resp) => resp.json())
+      .then(function(data) {
+
+        data_coin_btc_asks = data.result.asks.map(a => parseFloat(a.price));
+        coin_btc_ask_price = Math.min(...data_coin_btc_asks);
+        console.log("btc - " + coin_name + " ASK: " + coin_btc_ask_price.toString());
+        coin_btc_ask_price = parseFloat(coin_btc_ask_price);
+
+        data_coin_btc_bids = data.result.bids.map(a => parseFloat(a.price));
+        coin_btc_bid_price = Math.max(...data_coin_btc_bids);
+        console.log("btc - " + coin_name + " BID: " + coin_btc_bid_price.toString());
+        coin_btc_bid_price = parseFloat(coin_btc_bid_price);
+        console.log("-----------------------");
+
+        checkerEthCoinPoint = (1/coin_eth_ask_price) * coin_btc_bid_price / eth_btc.ask;
+        if (checkerEthCoinPoint > 1 ){
+          node = document.createElement("LI");
+          textnode = document.createTextNode("GO ETH => " + coin_name + " point: " + checkerEthCoinPoint);
+          node.appendChild(textnode); 
+          buy_list.appendChild(node);
+        }
+
+        checkerBitCoinPoint = (1/coin_btc_ask_price) * coin_eth_bid_price * eth_btc.bid;
+        if (checkerBitCoinPoint > 1 ){
+          node = document.createElement("LI");
+          textnode = document.createTextNode("GO BTC => " + coin_name + " point: " + checkerBitCoinPoint);
+          node.appendChild(textnode); 
+          buy_list.appendChild(node);
+        }
+
+        return fech_coins(coin_list, eth_btc);
+        })
+
+
+      .catch(function(error) {
+        console.log("xxxxxxxxxxxxxxx");
+        coin_list.pop();
+        return fech_coins(coin_list, eth_btc);
+      });
+
+    })
+    .catch(function(error) {
+      console.log("xxxxxxxxxxxxxxx");
+      coin_list.pop();
+      return fech_coins(coin_list, eth_btc);
+    });
+  }
+
+  function fetch_good_coin(){
+    // fetch eth_btc price
+    btc_eth_ask_price = 0;
+    btc_eth_bid_price = 0;
+
+    fetch(url_btc_eth)
+    .then((resp) => resp.json())
+    .then(function(data) {
+      btc_eth_ask_price = data.result.asks[data.result.asks.length - 1].price;
+      console.log("eth - btc ASK: " + btc_eth_ask_price);
+      btc_eth_ask_price = parseFloat(btc_eth_ask_price);
+
+      btc_eth_bid_price = data.result.bids[0].price;
+      console.log("eth - btc BID: " + btc_eth_bid_price);
+      btc_eth_bid_price = parseFloat(btc_eth_bid_price);
+      eth_btc = {"ask": btc_eth_ask_price, "bid": btc_eth_bid_price};
+      return fetch_coin_eth_btc(eth_btc);
+    })
+    .catch(function(error) {
+      console.log(JSON.stringify(error));
+    });
+  }
+
+  function fetch_coin_eth_btc(eth_btc){
+    // get list coin
+    fetch(url_coin_list)
+    .then((resp) => resp.json())
+    .then(function(data) {
+      let coins = data.result;
+      coins_tmp = []
+      coins.map(function(coin) {
+        coins_tmp.push(coin.coin_symbol);
+      });
+
+      listCoin = jQuery.unique(coins_tmp);
+      for (i = 0; i < 10; i++) { 
+        listCoin = jQuery.unique(listCoin);
+      }
+
+      ["ETH", "BTC"].map(function(removed_coin) {
+        index = listCoin.indexOf(removed_coin);
+        if (index > -1) {
+          listCoin.splice(index, 1);
+        }
+      });
+
+      console.log(JSON.stringify(listCoin));
+
+      // fetch coin have good exchanged
+      return fech_coins(listCoin, eth_btc);
+    })
+    .catch(function(error) {
+      console.log(JSON.stringify(error));
+    });
+  }
+
+  fetch_good_coin()
+
+</script>
