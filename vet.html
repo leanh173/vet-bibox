@@ -27,12 +27,16 @@
 
   }
 
+  function write_line(tag, content){
+    node = document.createElement(tag);
+    textnode = document.createTextNode(content);
+    node.appendChild(textnode);
+    buy_list.appendChild(node);
+  }
+
   function fech_coins(coin_list, eth_btc){
     if(coin_list.length == 0){
-      node = document.createElement("LI");
-      textnode = document.createTextNode("*** DONE ***");
-      node.appendChild(textnode);
-      buy_list.appendChild(node);
+      write_line("LI", "*** DONE ***")
       return
     };
     coin_name = coin_list.pop();
@@ -70,17 +74,17 @@
 
         checkerEthCoinPoint = (1/coin_eth_ask_price) * coin_btc_bid_price / eth_btc.ask;
         if (checkerEthCoinPoint > 1 ){
-          node = document.createElement("LI");
-          textnode = document.createTextNode("GO ETH => " + coin_name + " point: " + checkerEthCoinPoint);
-          node.appendChild(textnode); 
-          buy_list.appendChild(node);
+          write_line("LI", "GO ETH => " + coin_name + " point: " + checkerEthCoinPoint);
+          write_line("p", "Buy in ETH: " + coin_eth_ask_price);
+          write_line("p", "Sell in btc: " + coin_btc_bid_price);
+          write_line("p", "Buy eth from btc: " + eth_btc.ask);
         }
 
         checkerBitCoinPoint = (1/coin_btc_ask_price) * coin_eth_bid_price * eth_btc.bid;
         if (checkerBitCoinPoint > 1 ){
           node = document.createElement("LI");
           textnode = document.createTextNode("GO BTC => " + coin_name + " point: " + checkerBitCoinPoint);
-          node.appendChild(textnode); 
+          node.appendChild(textnode);
           buy_list.appendChild(node);
         }
 
